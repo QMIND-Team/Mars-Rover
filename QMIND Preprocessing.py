@@ -15,9 +15,6 @@ def Preprocess(img, ball):
     #Note the image must originally be in BGR format. Depending on the image source, they may originally be in RGB.
     img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     ball = cv2.cvtColor(ball, cv2.COLOR_BGR2HSV)
-    
-    #perform colour white re-balance
-
 
     #sharpness equalization
     ImgSharp = cv2.Laplacian(img[:,:,2], cv2.CV_64F).var()
@@ -38,6 +35,8 @@ def Preprocess(img, ball):
     #crop to square and resize to 256 x 256
     h = min(img.shape[:2])
     img = cv2.resize(img[0:h,0:h], (256,256))
+    
+    #scale down the ball
     
     return img
 
