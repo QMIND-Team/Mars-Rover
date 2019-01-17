@@ -3,6 +3,56 @@ import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
 
+#New code proposed to replace existing (Existing still shown below)
+#These functions accept an n*m*3 BGR-colour image containing a white background with a tennis ball located inside
+#The functions will extract the ball from the image and embed it into a different 128*128 background at some randomized location and orientation
+
+def ball_detector(ball_img):
+    #Take a ball image
+    #Detect ball using hough circle
+    #use centerpoint and radius to crop a square around ball
+    #scale square to 128*128
+    
+    
+    return crop_ball_img
+
+def mask_generator(crop_ball_img, background_img):
+    #Accepts a 128*128*3 image containing a tennis ball with a white background and embeds the tennis ball into a different background
+    #Outputs both the new background image with the tennis ball and a mask
+    
+    #Convert white pixels to black, then erode to remove white edge
+    kernel = np.ones((5,5),np.uint8)
+    gray = cv2.cvtColor(crop_ball_img, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray,254,255,cv2.THRESH_BINARY)
+    mask = cv2.dilate(mask,kernel,iterations = 1)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    crop_ball_img = crop_ball_img - mask
+    
+    #Scale and rotate the ball by random amounts
+    rescale = np.random.random
+    rotate = 360*np.random.random
+    crop_ball_img = cv2.resize(crop_ball_img, fx=rescale, fy=rescale, interpolation = cv2.INTER_CUBIC)
+    M = cv2.getRotationMatrix2D((cols/2,rows/2),rotate,1)
+    crop_ball_img = cv2.warpAffine(crop_ball_img,M,(128,128))
+    
+    #Embed ball randomly into an empty 128*128 matrix
+    blank = np.array([128,128,3], dtype = float)
+    h,w,_ = crop_ball_img.shape
+    offsetY = np.random.random_integers(0, 128)
+    offsetX = np.random.random_integers(0, 128)
+    blank[offsetY:offsetY+h,offsetX:offsetX+w] = crop_ball_img
+    
+    #Generate mask
+    gray_blank = cv2.cvtColor(blank, cv2.COLOR_BGR2GRAY)
+    ball_mask = cv2.threshold(gray_blank,1,255,cv2.THRESH_BINARY)
+    
+    #With background, subtract mask, then add ball
+    embedded_img = (background_img - cv2.cvtColor(ball_mask, cv2.COLOR_GRAY2BGR)) + blank
+    
+    return embedded_img, ball_mask
+
+
+################################################################
 def masker(img,accuracy):
     mask = np.copy(img)
     for i in range(len(img)):
