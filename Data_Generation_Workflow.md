@@ -19,7 +19,7 @@
 
 ## Embeddor
 
-## INPUT: generated ball image, raw background image##
+**INPUT: generated ball image, raw background image**
 
 - Each ball will map to each image (1:n)
 - Crop image to be square
@@ -27,7 +27,7 @@
 - Scale ball image to ~1/32 the size of the raw b/g image
 - Embed ball in background image
 
-**OUTPUT: Tennis ball embedded in b/g image (b/g image still original size)
+**OUTPUT: Tennis ball embedded in b/g image (b/g image still original size)**
 
 ## Image Preprocessing
 
