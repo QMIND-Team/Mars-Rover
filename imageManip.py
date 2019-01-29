@@ -13,20 +13,26 @@ def ball_detector(ball_img):
     #use centerpoint and radius to crop a square around ball
     #scale square to 128*128
     
+    #Convert white pixels to black, then erode to remove white edge
+    kernel = np.ones((5,5),np.uint8)
     
-    return crop_ball_img
+    gray = cv2.cvtColor(ball_img, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray,254,255,cv2.THRESH_BINARY)
+    mask = cv2.dilate(mask,kernel,iterations = 1)
+    
+    #Identify the ball and crop to it
+    circles = cv2.HoughCircles(mask,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
+    
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    ball_img = ball_img - mask
+    
+    
+    
+    return crop_ball_img, mask
 
 def mask_generator(crop_ball_img, background_img):
     #Accepts a 128*128*3 image containing a tennis ball with a white background and embeds the tennis ball into a different background
     #Outputs both the new background image with the tennis ball and a mask
-    
-    #Convert white pixels to black, then erode to remove white edge
-    kernel = np.ones((5,5),np.uint8)
-    gray = cv2.cvtColor(crop_ball_img, cv2.COLOR_BGR2GRAY)
-    _, mask = cv2.threshold(gray,254,255,cv2.THRESH_BINARY)
-    mask = cv2.dilate(mask,kernel,iterations = 1)
-    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-    crop_ball_img = crop_ball_img - mask
     
     #Scale and rotate the ball by random amounts
     rescale = np.random.random
