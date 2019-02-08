@@ -22,7 +22,7 @@ def circleFind():
     
     #guess parameters
     p2 = 150 #2nd parameter for the Hough Circle algorithm
-    guessR = max(img.shape[1], img.shape[0])/2 #maximum possible radius of the ball
+    guessR = max(img.shape)/2 #maximum possible radius of the ball
     n = 1 #number of expected balls
 
     circles = None
@@ -44,8 +44,8 @@ def circleFind():
             while guessR > 20:
                 circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,dp=guess_dp, minDist=max(img.shape[1], img.shape[0])/10,
                                 param1=50,param2=p2,minRadius=(guessR - 3),maxRadius=(guessR + 3))
+                
                 if circles is not None and len(circles[0]) == n:
-                #If it finds exactly n circles, log it. In reality, this should trigger the small-to-big autotune loops   
                     breakout = True
                     break
                 
@@ -60,9 +60,7 @@ def circleFind():
 circles, imgcopy = circleFind()
 
 output = np.copy(imgcopy)
-
 x, y, r = np.round(circles[0]).astype("int")
-
 cv2.circle(output, (x,y), r, (0,0,255), 10)
 cv2.imshow('meep',np.hstack([imgcopy, output]))
 cv2.waitKey(0)
