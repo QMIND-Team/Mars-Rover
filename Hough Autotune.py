@@ -40,7 +40,7 @@ def circleFind():
         #start with the most precise circle
         guess_dp = 1
         while guess_dp < 9 and breakout == False:
-            guessR = max(img.shape[1], img.shape[0])
+            guessR = max(img.shape)/2
             while guessR > 20:
                 circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,dp=guess_dp, minDist=max(img.shape[1], img.shape[0])/10,
                                 param1=50,param2=p2,minRadius=(guessR - 3),maxRadius=(guessR + 3))
