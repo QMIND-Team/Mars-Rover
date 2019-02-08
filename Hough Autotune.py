@@ -22,7 +22,6 @@ def circleFind():
     
     #guess parameters
     p2 = 150 #2nd parameter for the Hough Circle algorithm
-    guessR = max(img.shape)/2 #maximum possible radius of the ball
     n = 1 #number of expected balls
 
     circles = None
@@ -40,7 +39,7 @@ def circleFind():
         #start with the most precise circle
         guess_dp = 1
         while guess_dp < 9 and breakout == False:
-            guessR = max(img.shape)/2
+            guessR = np.round(max(img.shape)/2).astype("int")
             while guessR > 20:
                 circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,dp=guess_dp, minDist=max(img.shape[1], img.shape[0])/10,
                                 param1=50,param2=p2,minRadius=(guessR - 3),maxRadius=(guessR + 3))
