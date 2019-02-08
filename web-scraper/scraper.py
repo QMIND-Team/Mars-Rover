@@ -33,7 +33,6 @@ REQUEST_HEADER = {
     'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) "
                   + "Chrome/43.0.2357.134 Safari/537.36"}
 
-
 #Get soup given url and header
 def get_soup(url, header):
     request_data = Request(url, headers=header)
@@ -41,6 +40,13 @@ def get_soup(url, header):
     response = urlopen(request_data)
     return BeautifulSoup(response, 'html.parser')
 
+
+def scrape_proxy():
+    responseData = get_soup("https://free-proxy-list.net/", REQUEST_HEADER)
+    proxy_list = responseData.find_all("tr")
+    top_proxy_ip = proxy_list[1].find_all("td")[0].get_text()
+    top_proxy_port = proxy_list[1].find_all("td")[1].get_text()
+    return (top_proxy_ip + ":" + top_proxy_port)
 
 #Search query for image to be searched on google
 def get_query_url(query):
@@ -68,6 +74,8 @@ def extract_images(query, num_images):
 #Raw request for image
 def get_raw_image(url):
     req = Request(url, headers=REQUEST_HEADER)
+    proxy_address = scrape_proxy()
+    proxies = {'http': proxy_address}
     resp = urlopen(req)
     return resp.read()
 
@@ -92,7 +100,7 @@ def download_images_to_dir(images, save_directory, num_images):
             logger.exception(e)
 
 
-#Method that runs the query
+# Method that runs the query
 def run(query, save_directory, num_images=100):
     query = '+'.join(query.split())
     logger.info("Extracting image links")
