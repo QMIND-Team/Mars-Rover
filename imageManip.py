@@ -7,32 +7,68 @@ import matplotlib.pyplot as plt
 #These functions accept an n*m*3 BGR-colour image containing a white background with a tennis ball located inside
 #The functions will extract the ball from the image and embed it into a different 128*128 background at some randomized location and orientation
 
+def crop_image():
+    img = cv2.imread('TENNIS-BALL.jpg')
+    minDim = min(img.shape[:2])
+    return cv2.resize(img, (minDim,minDim))
+
+def adjust_brightness(img1, img2):
+    ball_img = cv2.imread(img1)
+    bg_img = cv2.imread(img2)
+    b1, g1, r1 = cv2.split(ball_img)
+    b2, g2, r2 = cv2.split(bg_img)
+
+    ball_avg_brightness =0
+    ball_height = len(b1)
+    ball_width = len(b1[0])
+    # b2, g1, r1 = cv2.split(bg_img)
+    #Luma to calculate average brightness
+    for i in range(0, len(b1) - 1):
+        for j in range(0, len(b1[0] - 1)):
+            curr_pixel = (0.299*r1[i][j] + 0.587*g1[i][j] + 0.114*b1[i][j])
+            ball_avg_brightness += (curr_pixel / (ball_width*ball_height))
+
+    bg_avg_brightness =0
+    bg_height = len(b2)
+    bg_width = len(b2[0])
+    for i in range(0, len(b2) - 1):
+        for j in range(0, len(b2[0] - 1)):
+            curr_pixel = (0.299*r2[i][j] + 0.587*g2[i][j] + 0.114*b2[i][j])
+            bg_avg_brightness += (curr_pixel / (bg_height*bg_width))
+    
+    #Determine which ball is brightest, and adjust brightness based on that
+    #(Not sure conversion between picture brightness vs. beta of transformation)
+    #(assuming adding a beta based on difference in avg. Luma will suffice)
+    if (max(ball_avg_brightness, bg_avg_brightness) == ball_avg_brightness):
+        bg_img = cv2.convertScaleAbs(bg_img, alpha=1, beta=(ball_avg_brightness - bg_avg_brightness))
+    else:
+        ball_img = cv2.convertScaleAbs(ball_img, alpha=1, beta=(bg_avg_brightness - ball_avg_brightness))
+    
+    return ball_img
+
+adjust_brightness("practice_image.jpg", "practice_img_2.jpg")
+
 def ball_detector(ball_img):
+
     #Take a ball image
     #Detect ball using hough circle
     #use centerpoint and radius to crop a square around ball
     #scale square to 128*128
     
-    #Convert white pixels to black, then erode to remove white edge
-    kernel = np.ones((5,5),np.uint8)
     
-    gray = cv2.cvtColor(ball_img, cv2.COLOR_BGR2GRAY)
-    _, mask = cv2.threshold(gray,254,255,cv2.THRESH_BINARY)
-    mask = cv2.dilate(mask,kernel,iterations = 1)
-    
-    #Identify the ball and crop to it
-    circles = cv2.HoughCircles(mask,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
-    
-    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-    ball_img = ball_img - mask
-    
-    
-    
-    return crop_ball_img, mask
+    return crop_ball_imgs
 
 def mask_generator(crop_ball_img, background_img):
     #Accepts a 128*128*3 image containing a tennis ball with a white background and embeds the tennis ball into a different background
     #Outputs both the new background image with the tennis ball and a mask
+    
+    #Convert white pixels to black, then erode to remove white edge
+    kernel = np.ones((5,5),np.uint8)
+    gray = cv2.cvtColor(crop_ball_img, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray,254,255,cv2.THRESH_BINARY)
+    mask = cv2.dilate(mask,kernel,iterations = 1)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    crop_ball_img = crop_ball_img - mask
     
     #Scale and rotate the ball by random amounts
     rescale = np.random.random
