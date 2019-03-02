@@ -91,6 +91,7 @@ def adjust_brightness(ball_img, bg_img):
 def ball_embed(ball_img, bg_img):
     #Accepts a colour image containing a tennis ball with a white background and embeds the tennis ball into a different background
     #Outputs both the new background image with the tennis ball and a mask
+
     #Convert background white pixels to black, then erode to remove white edge
     kernel = np.ones((5,5),np.uint8)
     gray = cv2.cvtColor(ball_img, cv2.COLOR_BGR2GRAY)
@@ -107,22 +108,31 @@ def ball_embed(ball_img, bg_img):
     ball_img = cv2.warpAffine(ball_img,M,(cols,rows))
     
     #Embed ball randomly into background
+    #Note: this doesn't allow the ball to ever be partially shown on left or top edges of bg_img
     h,w,_ = bg_img.shape
-    rows,cols,_ = ball_img.shape
+    orig_rows, orig_cols,_ = ball_img.shape
     offsetY = np.random.randint(0, h)
     offsetX = np.random.randint(0, w)
-    bg_img[offsetY:offsetY+rows,offsetX:offsetX+cols,:] = ball_img
-    
-    mask = mask_Maker(bg_img, ball_img, offsetY, offsetX)
+
+    end_rows = rows
+    end_cols = cols
+
+    if (offsetY + orig_rows > h):
+      end_rows = orig_rows - (orig_rows + offsetY - h)
+    if (offsetX + orig_cols > w):
+      end_cols = orig_cols - (orig_cols + offsetX - w)
+    bg_img[offsetY:offsetY+end_rows,offsetX:offsetX+end_cols,:] = ball_img[0:end_rows, 0:end_cols,:]
+
+    #If the offset + location of the ball > height, do some sort of conditional setting of pixels
+    mask = mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols)
     bg_img = cv2.resize(bg_img, (128, 128), interpolation = cv2.INTER_CUBIC)
     
     return bg_img, mask
 
-def mask_Maker(bg_img, ball_img, offsetY, offsetX):
+def mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols):
     blank = np.zeros(bg_img.shape, dtype=np.uint8)
-    
-    h,w,_ = ball_img.shape
-    blank[offsetY:offsetY+h,offsetX:offsetX+w,:] = ball_img
+  
+    blank[offsetY:offsetY+end_rows,offsetX:offsetX+end_cols,:] = ball_img[0:end_rows, 0:end_cols, :]
     blank = cv2.cvtColor(blank, cv2.COLOR_BGR2GRAY)
     _, ball_mask = cv2.threshold(blank,1,255,cv2.THRESH_BINARY)
     ball_mask = cv2.resize(ball_mask, (128, 128), interpolation = cv2.INTER_CUBIC)
