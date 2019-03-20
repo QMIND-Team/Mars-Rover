@@ -119,19 +119,24 @@ def ball_embed(ball_img, bg_img):
       end_rows = orig_rows - (orig_rows + offsetY - h)
     if (offsetX + orig_cols > w):
       end_cols = orig_cols - (orig_cols + offsetX - w)
-    
+
+    mask = np.zeros(h*w*3)
+    mask = np.reshape(mask, (h,w,3))
     for i in range(rows):
         for j in range(cols):
             if offsetY+i<h and offsetX+j<w:
                 if math.sqrt((i-rows/2)**2 + (j-cols/2)**2)<rows/2-rows/10:
                     bg_img[offsetY+i][offsetX+j] = ball_img[i][j]
+                    mask[offsetY+i][offsetX+j][0] = 255
+                    mask[offsetY+i][offsetX+j][1] = 255
+                    mask[offsetY+i][offsetX+j][2] = 255
                 
     #bg_img[offsetY:offsetY+end_rows,offsetX:offsetX+end_cols,:] = ball_img[0:end_rows, 0:end_cols,:]
 
     #If the offset + location of the ball > height, do some sort of conditional setting of pixels
-    mask = mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols)
+    #mask = mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols)
     bg_img = cv2.resize(bg_img, (128, 128), interpolation = cv2.INTER_CUBIC)
-    
+    mask = cv2.resize(mask, (128, 128), interpolation = cv2.INTER_CUBIC)
     return bg_img, mask
 
 def mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols):
@@ -143,3 +148,5 @@ def mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols):
     ball_mask = cv2.resize(ball_mask, (128, 128), interpolation = cv2.INTER_CUBIC)
     
     return ball_mask
+
+
