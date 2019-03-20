@@ -19,9 +19,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import ndimage
-
-ball = cv2.imread('Test.jpg',1)
-bg = cv2.imread('Test.jpg',1)
+import math
 
 def circleFind(img):
     #if colour, then grayscale the image   
@@ -121,7 +119,14 @@ def ball_embed(ball_img, bg_img):
       end_rows = orig_rows - (orig_rows + offsetY - h)
     if (offsetX + orig_cols > w):
       end_cols = orig_cols - (orig_cols + offsetX - w)
-    bg_img[offsetY:offsetY+end_rows,offsetX:offsetX+end_cols,:] = ball_img[0:end_rows, 0:end_cols,:]
+    
+    for i in range(rows):
+        for j in range(cols):
+            if offsetY+i<h and offsetX+j<w:
+                if math.sqrt((i-rows/2)**2 + (j-cols/2)**2)<rows/2-rows/10:
+                    bg_img[offsetY+i][offsetX+j] = ball_img[i][j]
+                
+    #bg_img[offsetY:offsetY+end_rows,offsetX:offsetX+end_cols,:] = ball_img[0:end_rows, 0:end_cols,:]
 
     #If the offset + location of the ball > height, do some sort of conditional setting of pixels
     mask = mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols)
@@ -138,14 +143,3 @@ def mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols):
     ball_mask = cv2.resize(ball_mask, (128, 128), interpolation = cv2.INTER_CUBIC)
     
     return ball_mask
-
-cir = circleFind(ball)
-ball = ballCrop(ball,cir)
-bg = bgCrop(bg)
-ball = adjust_brightness(ball, bg)
-bg, mask = ball_embed(ball, bg)
-
-cv2.imshow('0',bg)
-cv2.waitKey(0)
-cv2.imshow('0',mask)
-cv2.waitKey(0)
