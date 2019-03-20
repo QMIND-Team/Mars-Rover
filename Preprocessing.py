@@ -21,9 +21,6 @@ from matplotlib import pyplot as plt
 from scipy import ndimage
 import math
 
-ball = cv2.imread('Test2.jpg',1)
-bg = cv2.imread('background.jpeg',1)
-
 def circleFind(img):
     #if colour, then grayscale the image   
     if len(img.shape) == 3:
@@ -146,9 +143,3 @@ def mask_Maker(bg_img, ball_img, offsetY, offsetX, end_rows, end_cols):
     ball_mask = cv2.resize(ball_mask, (128, 128), interpolation = cv2.INTER_CUBIC)
     
     return ball_mask
-
-cir = circleFind(ball)
-ball = ballCrop(ball,cir)
-bg = bgCrop(bg)
-ball = adjust_brightness(ball, bg)
-bg, mask = ball_embed(ball, bg)
