@@ -2,7 +2,6 @@
 Web scraper for QMIND's Mars Rover Team
 Adapted from https://gist.github.com/genekogan/ebd77196e4bf0705db51f86431099e57
 author: Tyler Mainguy
-TODO: Add proxy to Request object
 TODO: Automate proxy choice. Potentially another program to scrape values off of free-proxy-list, or a similar domain.
 """
 

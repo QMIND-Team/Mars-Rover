@@ -8,10 +8,10 @@ import os
 
 import params
 
-MAIN_DIR = os.getcwd()
+MAIN_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_DIR = os.path.join(MAIN_DIR,'input')
 TRAIN_DIR = os.path.join(INPUT_DIR,'train')
-MASK_DIR = os.path.join(INPUT_DIR,'mask')
+MASK_DIR = os.path.join(INPUT_DIR,'masks')
 
 input_size = params.input_size
 epochs = params.max_epochs

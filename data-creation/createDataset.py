@@ -5,11 +5,13 @@ from matplotlib import pyplot as plt
 from scipy import ndimage
 import os
 
-MAIN_DIR = os.getcwd()
+MAIN_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.abspath(os.path.join(MAIN_DIR, '..'))
+TRAINING_DIR = os.path.abspath(os.path.join(PARENT_DIR,"training"))
 BALLFOLDER = os.path.join(MAIN_DIR,'balls')
 BACKGROUNDFOLDER = os.path.join(MAIN_DIR,'backgrounds')
-NEWFOLDER = os.path.join(MAIN_DIR,'train')
-MASKFOLDER = os.path.join(MAIN_DIR,'masks')
+NEWFOLDER = os.path.join(TRAINING_DIR,'train')
+MASKFOLDER = os.path.join(TRAINING_DIR,'masks')
 
 counter = 1
 otherCount = 1

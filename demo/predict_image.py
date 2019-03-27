@@ -28,7 +28,4 @@ def find_ball(im, model):
    prediction3 = np.power(prediction2,2) * 255
    finalIm = cv2.cvtColor(prediction3, cv2.COLOR_GRAY2BGR)
 
-   #Save Image
-   cv2.imwrite("mask.jpg", finalIm)
-
    return finalIm
